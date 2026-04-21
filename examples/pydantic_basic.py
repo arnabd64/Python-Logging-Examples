@@ -5,10 +5,12 @@ Description:
 
 - All the `LogRecord` objects stored on the RAM as a Pydantic Object
 """
-from typing import List
+
 from datetime import datetime
-from logging import Formatter, LogRecord, Handler
+from logging import Formatter, Handler, LogRecord
 from pathlib import Path
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -25,6 +27,7 @@ class PydanticLogRecord(BaseModel):
         lineno (int) : Line Number where logger was called
         message (str) : Log Message
     """
+
     timestamp: datetime
     loglevel: str
     name: str
@@ -39,6 +42,7 @@ class PydanticFormatter(Formatter):
     Converts a Log Event object (`LogRecord`) into a Pydantic
     object
     """
+
     def format(self, record: LogRecord) -> PydanticLogRecord:
         return PydanticLogRecord(
             timestamp=datetime.fromtimestamp(record.created),
@@ -58,7 +62,8 @@ class PydanticInMemoryHandler(Handler):
     WARNING: If you are using this code make sure to dump
     the records into a file or a database
     """
-    def __init__(self, level = 0):
+
+    def __init__(self, level=0):
         self._store: List[PydanticLogRecord] = []
         super().__init__(level)
 
@@ -75,18 +80,19 @@ class JSONLinesHandler(Handler):
     Dumps all `LogRecord` into a jsonl formatted where
     each line is a JSON log event
     """
-    def __init__(self, filename: str | Path, level = 0):
+
+    def __init__(self, filename: str | Path, level=0):
         super().__init__(level)
-        
+
         self.filename = Path(filename)
-        
+
         if self.filename.is_dir():
             raise ValueError(f"{filename} is a directory")
-        
+
         if not self.filename.exists():
             self.filename.parent.mkdir(parents=True, exist_ok=True)
             self.filename.touch()
-    
+
     def emit(self, record: LogRecord):
         log = self.format(record)
 
@@ -97,9 +103,7 @@ class JSONLinesHandler(Handler):
             f.write(log.model_dump_json() + "\n")
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     import logging
 
     logger = logging.getLogger("test_logger")
