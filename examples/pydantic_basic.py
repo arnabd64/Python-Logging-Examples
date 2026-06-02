@@ -9,7 +9,7 @@ Description:
 from datetime import datetime
 from logging import Formatter, Handler, LogRecord
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
@@ -43,17 +43,38 @@ class PydanticFormatter(Formatter):
     Converts a Log Event object (`LogRecord`) into a Pydantic
     object
     """
-    _RESERVED = frozenset({
-        "name", "msg", "args", "levelname", "levelno", "pathname",
-        "filename", "module", "exc_info", "exc_text", "stack_info",
-        "lineno", "funcName", "created", "msecs", "relativeCreated",
-        "thread", "threadName", "processName", "process", "message",
-        "taskName",
-    })
+
+    _RESERVED = frozenset(
+        {
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_info",
+            "exc_text",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "message",
+            "taskName",
+        }
+    )
 
     def format(self, record: LogRecord) -> PydanticLogRecord:
         extra = {
-            k: v for k, v in record.__dict__.items()
+            k: v
+            for k, v in record.__dict__.items()
             if k not in self._RESERVED and not k.startswith("_")
         }
         return PydanticLogRecord(
@@ -64,7 +85,7 @@ class PydanticFormatter(Formatter):
             funcName=record.funcName,
             lineno=record.lineno,
             message=record.getMessage(),
-            extra=extra
+            extra=extra,
         )
 
 
@@ -126,9 +147,15 @@ if __name__ == "__main__":
     handler.setFormatter(PydanticFormatter())
     logger.addHandler(handler)
 
-    logger.info("Application started successfully", extra={"app.name": "Test Logger", "app.version": 1})
+    logger.info(
+        "Application started successfully",
+        extra={"app.name": "Test Logger", "app.version": 1},
+    )
     logger.warning("Low memory detected: 85% usage")
-    logger.error("Failed to connect to database: timeout after 30s", extra={"db.url": "sqlite:///app.log"})
+    logger.error(
+        "Failed to connect to database: timeout after 30s",
+        extra={"db.url": "sqlite:///app.log"},
+    )
 
     for log in handler.store:
         print(log.model_dump_json(indent=2))
@@ -170,6 +197,12 @@ if __name__ == "__main__":
     handler.setFormatter(PydanticFormatter())
     logger.addHandler(handler)
 
-    logger.info("Application started successfully", extra={"app.name": "Test Logger", "app.version": 1})
+    logger.info(
+        "Application started successfully",
+        extra={"app.name": "Test Logger", "app.version": 1},
+    )
     logger.warning("Low memory detected: 85% usage")
-    logger.error("Failed to connect to database: timeout after 30s", extra={"db.url": "sqlite:///app.log"})
+    logger.error(
+        "Failed to connect to database: timeout after 30s",
+        extra={"db.url": "sqlite:///app.log"},
+    )

@@ -1,3 +1,5 @@
 pydantic
 sqlmodel
 sqlalchemy
+boto3
+botocore[crt]
