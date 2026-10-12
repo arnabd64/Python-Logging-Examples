@@ -3,3 +3,4 @@ sqlmodel
 sqlalchemy
 boto3
 botocore[crt]
+urllib3
